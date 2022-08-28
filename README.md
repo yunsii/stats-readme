@@ -1,105 +1,57 @@
 <p align="center">
-  <a href="https://github.com/actions/stats-readme/actions"><img alt="stats-readme status" src="https://github.com/actions/stats-readme/workflows/build-test/badge.svg"></a>
+  <a href="https://github.com/yunsii/stats-readme/actions"><img alt="stats-readme status" src="https://github.com/yunsii/stats-readme/workflows/build-test/badge.svg"></a>
 </p>
 
-# Create a JavaScript Action using TypeScript
+# Stats Readme
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+> GitHub Stats on your Profile Readme
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+## Gallery
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+✨ GitHub Stats
 
-## Create an action from this template
+<!--START_SECTION:stats-->
 
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Main
-
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
-
-Install the dependencies  
-```bash
-$ pnpm install
+```text
+Total Stars Earned     578
+Total Commits (2022)   434
+Total PRs              43
+Total Issues           95
+Contributed to         24
 ```
 
-Build the typescript and package it for distribution
-```bash
-$ pnpm run build && pnpm run package
-```
+<!--END_SECTION:stats-->
 
-Run the tests :heavy_check_mark:  
-```bash
-$ pnpm test
+## Usage
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
+- Save the README file after copy-pasting the following special comments. Your GitHub stats will show up in between.
 
-...
-```
+  ```md
+  <!--START_SECTION:stats-->
+  <!--END_SECTION:stats-->
+  ```
 
-## Change action.yml
+- Create a new workflow file (`stats-readme.yml`) inside `.github/workflows/` folder of your repository. You can create it from a template using *the actions* tab of your repository too.
+- Clear any existing contents, add the following lines and save the file.
 
-The action.yml defines the inputs and output for your action.
+  ```yml
+  name: Stats Readme
 
-Update the action.yml with your name, description, inputs and outputs for your action.
+  on:
+    workflow_dispatch:
+    schedule:
+      - cron: "0 21 */2 * *" # Runs at 21:00 UTC on the 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29 and 31st of every month
 
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
+  jobs:
+    update-readme:
+      name: Update GitHub Stats
+      runs-on: ubuntu-latest
+      steps:
+        - uses: yunsii/stats-readme@main
+  ```
 
-## Change the Code
 
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
+## Credits
 
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/yunsii/stats-readme/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+- [athul/waka-readme](https://github.com/athul/waka-readme)
+- [anuraghazra/github-readme-stats](https://github.com/anuraghazra/github-readme-stats)

@@ -2,10 +2,19 @@ name: 'stats-readme'
 description: 'Provide a description here'
 author: 'Yuns (云深)'
 inputs:
-  milliseconds: # change this
+  # https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+  GITHUB_TOKEN:
+    description: 'GitHub access token with Repo scope'
+    default: ${{ github.token }}
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  GITHUB_REPOSITORY_OWNER:
+    description: "The repository owner's name. For example, `Codertocat`."
+    default: ${{ github.repository_owner }}
+    required: true
+  GITHUB_REPOSITORY:
+    description: 'The owner and repository name. For example, `Codertocat/Hello-World``.'
+    default: ${{ github.repository }}
+    required: true
 runs:
   using: 'node16'
   main: 'dist/index.js'

@@ -25,10 +25,14 @@
   "author": "Yuns <yuns.xie@qq.com>",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.6.0"
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.3",
+    "cfonts": "^3.1.1",
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@jest/globals": "^29.0.1",
+    "@types/lodash-es": "^4.17.6",
     "@types/node": "^16.10.5",
     "@typescript-eslint/parser": "^5.8.1",
     "@vercel/ncc": "^0.31.1",
