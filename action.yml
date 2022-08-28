@@ -1,0 +1,11 @@
+name: 'starter-typescript-action'
+description: 'Provide a description here'
+author: 'Yuns (云深)'
+inputs:
+  milliseconds: # change this
+    required: true
+    description: 'input description here'
+    default: 'default value if applicable'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
