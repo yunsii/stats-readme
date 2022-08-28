@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
+  <a href="https://github.com/actions/stats-readme/actions"><img alt="stats-readme status" src="https://github.com/actions/stats-readme/workflows/build-test/badge.svg"></a>
 </p>
 
 # Create a JavaScript Action using TypeScript
@@ -98,7 +98,7 @@ with:
   milliseconds: 1000
 ```
 
-See the [actions tab](https://github.com/yunsii/starter-typescript-action/actions) for runs of this action! :rocket:
+See the [actions tab](https://github.com/yunsii/stats-readme/actions) for runs of this action! :rocket:
 
 ## Usage:
 
