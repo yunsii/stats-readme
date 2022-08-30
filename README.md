@@ -13,11 +13,11 @@
 <!--START_SECTION:stats-->
 
 ```text
-Total Stars Earned     578
-Total Commits (2022)   434
-Total PRs              43
-Total Issues           95
-Contributed to         24
+Total Stars Earned     582                
+Total Commits (2022)   447                 ╔═╗    
+Total PRs              43                  ╠═╣ ═╬═
+Total Issues           96                  ╩ ╩    
+Contributed to         24                 
 ```
 
 <!--END_SECTION:stats-->
@@ -25,6 +25,15 @@ Contributed to         24
 ✨ Most Used Languages
 
 <!--START_SECTION:stats:langs-->
+
+```text
+TypeScript   59.27%   >>>>>>>>>>>>>>>----------
+JavaScript   21.03%   >>>>>--------------------
+Less         15.29%   >>>>---------------------
+Python       1.36%    -------------------------
+CSS          1.15%    -------------------------
+```
+
 <!--END_SECTION:stats:langs-->
 
 ## Usage
