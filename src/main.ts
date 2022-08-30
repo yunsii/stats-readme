@@ -1,35 +1,82 @@
 import * as core from '@actions/core'
 
 import { getReadme } from './data/readme'
-import { updateUserStatsText } from './utils/user-stats'
-import { getUserStatsText } from './views/user-stats'
-import { commitUpdateReadme } from './services/readme'
 import { getRepoName, getRepoOwner } from './utils/inputs'
-// import { getTopLanguagesText } from './views/top-languages'
+import { commitUpdateReadme } from './services/readme'
+import { getUserStatsText } from './views/user-stats'
+import { getTopLanguagesText } from './views/top-languages'
+import { isRenderUserStat, updateUserStatsText } from './utils/user-stats'
+import { isRenderTopLangs, updateTopLangsText } from './utils/top-languages'
+
+interface ITask {
+  name: string
+  run: () => Promise<string>
+  callback: (readme: string, userStats: string) => string
+}
 
 async function run(): Promise<void> {
   try {
     const repoOwner = getRepoOwner()
     const repoName = getRepoName()
-    core.info(`INFO: repoOwner: ${repoOwner}`)
-    core.info(`INFO: repoName: ${repoName}`)
-    const stats = await getUserStatsText(repoOwner)
+    core.info(`INFO: Repo owner: ${repoOwner}`)
+    core.info(`INFO: Repo name: ${repoName}`)
+
     const readme = await getReadme({
       owner: repoOwner,
       repo: repoName
     })
-    const content = updateUserStatsText(readme, stats)
+
+    core.info(`INFO: Get readme content success`)
+
+    const tasks: ITask[] = []
+
+    if (isRenderUserStat(readme)) {
+      tasks.push({
+        name: 'user stats',
+        run: async () => getUserStatsText(repoOwner),
+        callback: (readmeContent, userStats) =>
+          updateUserStatsText(readmeContent, userStats)
+      })
+    }
+
+    if (isRenderTopLangs(readme)) {
+      tasks.push({
+        name: 'top langs',
+        run: async () => getTopLanguagesText(repoOwner),
+        callback: (readmeContent, topLangs) =>
+          updateTopLangsText(readmeContent, topLangs)
+      })
+    }
+
+    if (tasks.length === 0) {
+      core.info('INFO: Readme without special comments,')
+      core.info('INFO: So, stats-readme was not updated')
+      return
+    }
+
+    const viewTexts = await Promise.all(tasks.map(async item => item.run()))
+
+    const newReadme = viewTexts.reduce((prev, viewText, currentIndex) => {
+      return tasks[currentIndex].callback(prev, viewText)
+    }, readme)
+
+    if (newReadme === readme) {
+      core.info('INFO: Stats views without changes,')
+      core.info('INFO: So, stats-readme was not updated')
+      return
+    }
+
     await commitUpdateReadme({
       owner: repoOwner,
       repo: repoName,
-      message: 'Updated stats-readme graph with user stats',
-      content
+      message: `Updated stats-readme graph with ${tasks
+        .map(item => item.name)
+        .join(', ')}`,
+      content: newReadme
     })
+
     core.info(`INFO: Stats updated successfully`)
-    core.info(`\n\nThanks for using StatsReadme!`)
-    // const topLanguages = await getTopLanguagesText(login)
-    // core.info(stats)
-    // core.info(topLanguages)
+    core.info(`\n\nThanks for using stats-readme!`)
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }

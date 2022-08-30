@@ -1,10 +1,12 @@
-import { sortBy, mapValues, reverse } from 'lodash-es'
+import { sortBy, mapValues, reverse, max, padEnd, repeat } from 'lodash-es'
 
 import { getTopLanguages, ITopLanguagesData } from '../data/top-languages'
 
-function format(topLangs: ITopLanguagesData): string {
-  const result = [`Most Used Languages`]
+const progressBarLength = 25
+const progressBarWalkedSign = '>'
+const progressBarEmptySign = '-'
 
+function format(topLangs: ITopLanguagesData): string {
   const orderedTopLangs = reverse(
     sortBy(mapValues(topLangs), item => item.size)
   )
@@ -14,13 +16,37 @@ function format(topLangs: ITopLanguagesData): string {
     0
   )
 
+  const info: { label: string; value: number }[] = []
+
   for (const item of orderedTopLangs.slice(0, 5)) {
-    result.push(
-      `${item.name} ${((item.size * 100) / totalLanguageSize).toFixed(2)}%`
-    )
+    info.push({
+      label: item.name,
+      value: (item.size * 100) / totalLanguageSize
+    })
   }
 
-  return result.join('\n')
+  const maxLabelLength = max(info.map(item => item.label.length)) || 0
+
+  const infoLines = info.map(item => {
+    return `${padEnd(item.label, maxLabelLength + 3, ' ')}${item.value.toFixed(
+      2
+    )}%`
+  })
+
+  const maxInfoLineLength = max(infoLines.map(item => item.length)) || 0
+
+  return infoLines
+    .map((item, index) => {
+      const walkedCount = Math.round(
+        (info[index].value * progressBarLength) / 100
+      )
+
+      return `${padEnd(item, maxInfoLineLength + 3, ' ')}${repeat(
+        progressBarWalkedSign,
+        walkedCount
+      )}${repeat(progressBarEmptySign, progressBarLength - walkedCount)}`
+    })
+    .join('\n')
 }
 
 export async function getTopLanguagesText(login: string): Promise<string> {

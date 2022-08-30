@@ -77,7 +77,7 @@ function format(
 
   return infoLines
     .map((item, index) => {
-      return `${padEnd(item, maxInfoLineLength + 20, ' ')}${
+      return `${padEnd(item, maxInfoLineLength + 16, ' ')}${
         rankFontLines[index]
       }`
     })

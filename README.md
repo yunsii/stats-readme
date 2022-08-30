@@ -22,6 +22,11 @@ Contributed to         24
 
 <!--END_SECTION:stats-->
 
+✨ Most Used Languages
+
+<!--START_SECTION:stats:langs-->
+<!--END_SECTION:stats:langs-->
+
 ## Usage
 
 - Save the README file after copy-pasting the following special comments. Your GitHub stats will show up in between.
@@ -29,6 +34,9 @@ Contributed to         24
   ```md
   <!--START_SECTION:stats-->
   <!--END_SECTION:stats-->
+
+  <!--START_SECTION:stats:langs-->
+  <!--END_SECTION:stats:langs-->
   ```
 
 - Create a new workflow file (`stats-readme.yml`) inside `.github/workflows/` folder of your repository. You can create it from a template using *the actions* tab of your repository too.

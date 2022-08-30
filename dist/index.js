@@ -31,6 +31,57 @@ exports.getReadme = getReadme;
 
 /***/ }),
 
+/***/ 1013:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getTopLanguages = void 0;
+const top_languages_1 = __nccwpck_require__(4097);
+function getTopLanguages(login, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const excludeRepos = (options === null || options === void 0 ? void 0 : options.excludeRepos) || [];
+        const response = yield (0, top_languages_1.fetchRepoLanguages)({ login });
+        const { user } = response;
+        const repoNodes = user.repositories.nodes;
+        return (repoNodes
+            .filter(item => !excludeRepos.includes(item.name))
+            .filter(item => item.languages.edges.length > 0)
+            // flatten the list of language nodes
+            .reduce((prev, current) => current.languages.edges.concat(prev), [])
+            .reduce((prev, current) => {
+            // get the size of the language (bytes)
+            let langSize = current.size;
+            // if we already have the language in the accumulator
+            // & the current language name is same as previous name
+            // add the size to the language size.
+            if (prev[current.node.name] &&
+                current.node.name === prev[current.node.name].name) {
+                langSize = current.size + prev[current.node.name].size;
+            }
+            return Object.assign(Object.assign({}, prev), { [current.node.name]: {
+                    name: current.node.name,
+                    color: current.node.color,
+                    size: langSize
+                } });
+        }, {}));
+    });
+}
+exports.getTopLanguages = getTopLanguages;
+
+
+/***/ }),
+
 /***/ 802:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -128,35 +179,63 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(4167));
 const readme_1 = __nccwpck_require__(6872);
-const user_stats_1 = __nccwpck_require__(6811);
-const user_stats_2 = __nccwpck_require__(6402);
-const readme_2 = __nccwpck_require__(2443);
 const inputs_1 = __nccwpck_require__(3036);
-// import { getTopLanguagesText } from './views/top-languages'
+const readme_2 = __nccwpck_require__(2443);
+const user_stats_1 = __nccwpck_require__(6402);
+const top_languages_1 = __nccwpck_require__(6858);
+const user_stats_2 = __nccwpck_require__(6811);
+const top_languages_2 = __nccwpck_require__(5636);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const repoOwner = (0, inputs_1.getRepoOwner)();
             const repoName = (0, inputs_1.getRepoName)();
-            core.info(`INFO: repoOwner: ${repoOwner}`);
-            core.info(`INFO: repoName: ${repoName}`);
-            const stats = yield (0, user_stats_2.getUserStatsText)(repoOwner);
+            core.info(`INFO: Repo owner: ${repoOwner}`);
+            core.info(`INFO: Repo name: ${repoName}`);
             const readme = yield (0, readme_1.getReadme)({
                 owner: repoOwner,
                 repo: repoName
             });
-            const content = (0, user_stats_1.updateUserStatsText)(readme, stats);
+            core.info(`INFO: Get readme content success`);
+            const tasks = [];
+            if ((0, user_stats_2.isRenderUserStat)(readme)) {
+                tasks.push({
+                    name: 'user stats',
+                    run: () => __awaiter(this, void 0, void 0, function* () { return (0, user_stats_1.getUserStatsText)(repoOwner); }),
+                    callback: (readmeContent, userStats) => (0, user_stats_2.updateUserStatsText)(readmeContent, userStats)
+                });
+            }
+            if ((0, top_languages_2.isRenderTopLangs)(readme)) {
+                tasks.push({
+                    name: 'top langs',
+                    run: () => __awaiter(this, void 0, void 0, function* () { return (0, top_languages_1.getTopLanguagesText)(repoOwner); }),
+                    callback: (readmeContent, topLangs) => (0, top_languages_2.updateTopLangsText)(readmeContent, topLangs)
+                });
+            }
+            if (tasks.length === 0) {
+                core.info('INFO: Readme without special comments,');
+                core.info('INFO: So, stats-readme was not updated');
+                return;
+            }
+            const viewTexts = yield Promise.all(tasks.map((item) => __awaiter(this, void 0, void 0, function* () { return item.run(); })));
+            const newReadme = viewTexts.reduce((prev, viewText, currentIndex) => {
+                return tasks[currentIndex].callback(prev, viewText);
+            }, readme);
+            if (newReadme === readme) {
+                core.info('INFO: Stats views without changes,');
+                core.info('INFO: So, stats-readme was not updated');
+                return;
+            }
             yield (0, readme_2.commitUpdateReadme)({
                 owner: repoOwner,
                 repo: repoName,
-                message: 'Updated stats-readme graph with user stats',
-                content
+                message: `Updated stats-readme graph with ${tasks
+                    .map(item => item.name)
+                    .join(', ')}`,
+                content: newReadme
             });
             core.info(`INFO: Stats updated successfully`);
-            core.info(`\n\nThanks for using StatsReadme!`);
-            // const topLanguages = await getTopLanguagesText(login)
-            // core.info(stats)
-            // core.info(topLanguages)
+            core.info(`\n\nThanks for using stats-readme!`);
         }
         catch (error) {
             if (error instanceof Error)
@@ -243,6 +322,56 @@ function commitUpdateReadme(payload) {
     });
 }
 exports.commitUpdateReadme = commitUpdateReadme;
+
+
+/***/ }),
+
+/***/ 4097:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.fetchRepoLanguages = void 0;
+const octokit_1 = __importDefault(__nccwpck_require__(2089));
+function fetchRepoLanguages(variables) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield octokit_1.default.graphql(Object.assign({ query: `
+      query userInfo($login: String!) {
+        user(login: $login) {
+          # fetch only owner repos & not forks
+          repositories(ownerAffiliations: OWNER, isFork: false, first: 100) {
+            nodes {
+              name
+              languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+                edges {
+                  size
+                  node {
+                    color
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ` }, variables));
+    });
+}
+exports.fetchRepoLanguages = fetchRepoLanguages;
 
 
 /***/ }),
@@ -362,16 +491,42 @@ exports.getRepoName = getRepoName;
 
 /***/ }),
 
+/***/ 5636:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.updateTopLangsText = exports.isRenderTopLangs = void 0;
+const startComment = '<!--START_SECTION:stats:langs-->';
+const endComment = '<!--END_SECTION:stats:langs-->';
+const statsBlockReg = new RegExp(`${startComment}[\\s\\S]+?${endComment}`);
+function isRenderTopLangs(readme) {
+    return statsBlockReg.test(readme);
+}
+exports.isRenderTopLangs = isRenderTopLangs;
+function updateTopLangsText(readme, topLangs) {
+    return readme.replace(statsBlockReg, `${startComment}\n\n\`\`\`text\n${topLangs}\n\`\`\`\n\n${endComment}`);
+}
+exports.updateTopLangsText = updateTopLangsText;
+
+
+/***/ }),
+
 /***/ 6811:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.calculateRank = exports.updateUserStatsText = void 0;
+exports.calculateRank = exports.updateUserStatsText = exports.isRenderUserStat = void 0;
 const startComment = '<!--START_SECTION:stats-->';
 const endComment = '<!--END_SECTION:stats-->';
 const statsBlockReg = new RegExp(`${startComment}[\\s\\S]+?${endComment}`);
+function isRenderUserStat(readme) {
+    return statsBlockReg.test(readme);
+}
+exports.isRenderUserStat = isRenderUserStat;
 function updateUserStatsText(readme, userStats) {
     return readme.replace(statsBlockReg, `${startComment}\n\n\`\`\`text\n${userStats}\n\`\`\`\n\n${endComment}`);
 }
@@ -436,6 +591,60 @@ function calculateRank({ totalRepos, totalCommits, contributions, followers, prs
     return { level, score: normalizedScore };
 }
 exports.calculateRank = calculateRank;
+
+
+/***/ }),
+
+/***/ 6858:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getTopLanguagesText = void 0;
+const lodash_es_1 = __nccwpck_require__(5731);
+const top_languages_1 = __nccwpck_require__(1013);
+const progressBarLength = 25;
+const progressBarWalkedSign = '>';
+const progressBarEmptySign = '-';
+function format(topLangs) {
+    const orderedTopLangs = (0, lodash_es_1.reverse)((0, lodash_es_1.sortBy)((0, lodash_es_1.mapValues)(topLangs), item => item.size));
+    const totalLanguageSize = orderedTopLangs.reduce((prev, current) => prev + current.size, 0);
+    const info = [];
+    for (const item of orderedTopLangs.slice(0, 5)) {
+        info.push({
+            label: item.name,
+            value: (item.size * 100) / totalLanguageSize
+        });
+    }
+    const maxLabelLength = (0, lodash_es_1.max)(info.map(item => item.label.length)) || 0;
+    const infoLines = info.map(item => {
+        return `${(0, lodash_es_1.padEnd)(item.label, maxLabelLength + 3, ' ')}${item.value.toFixed(2)}%`;
+    });
+    const maxInfoLineLength = (0, lodash_es_1.max)(infoLines.map(item => item.length)) || 0;
+    return infoLines
+        .map((item, index) => {
+        const walkedCount = Math.round((info[index].value * progressBarLength) / 100);
+        return `${(0, lodash_es_1.padEnd)(item, maxInfoLineLength + 3, ' ')}${(0, lodash_es_1.repeat)(progressBarWalkedSign, walkedCount)}${(0, lodash_es_1.repeat)(progressBarEmptySign, progressBarLength - walkedCount)}`;
+    })
+        .join('\n');
+}
+function getTopLanguagesText(login) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const topLangs = yield (0, top_languages_1.getTopLanguages)(login);
+        return format(topLangs);
+    });
+}
+exports.getTopLanguagesText = getTopLanguagesText;
 
 
 /***/ }),
@@ -520,7 +729,7 @@ function format(stats, options) {
     const rankFontLines = ['', ...result.array, ''];
     return infoLines
         .map((item, index) => {
-        return `${(0, lodash_es_1.padEnd)(item, maxInfoLineLength + 20, ' ')}${rankFontLines[index]}`;
+        return `${(0, lodash_es_1.padEnd)(item, maxInfoLineLength + 16, ' ')}${rankFontLines[index]}`;
     })
         .join('\n');
 }

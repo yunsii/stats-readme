@@ -3,6 +3,10 @@ const endComment = '<!--END_SECTION:stats-->'
 
 const statsBlockReg = new RegExp(`${startComment}[\\s\\S]+?${endComment}`)
 
+export function isRenderUserStat(readme: string): boolean {
+  return statsBlockReg.test(readme)
+}
+
 export function updateUserStatsText(readme: string, userStats: string): string {
   return readme.replace(
     statsBlockReg,
