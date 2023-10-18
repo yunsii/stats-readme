@@ -53,6 +53,9 @@ async function run(): Promise<void> {
       })
     }
 
+    core.info(
+      `isRenderNpmPackages(readme) ${isRenderNpmPackages(readme).toString()}`
+    )
     if (isRenderNpmPackages(readme)) {
       tasks.push({
         name: 'npm packages',
@@ -73,8 +76,10 @@ async function run(): Promise<void> {
             )
           })
         },
-        callback: (readmeContent, formattedText) =>
-          updateTopNpmPackagesText(readmeContent, formattedText)
+        callback: (readmeContent, formattedText) => {
+          core.info(`formattedText ${formattedText}`)
+          return updateTopNpmPackagesText(readmeContent, formattedText)
+        }
       })
     }
 
