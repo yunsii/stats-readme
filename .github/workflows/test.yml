@@ -53,3 +53,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
+        with:
+          npm-packages-author: theprimone
+          npm-packages-exclude: react-amap-plugin-custom-geolocation|dva-base-models|antd-form-mate|antd-curd|gaea-injection|rc-select-plus
