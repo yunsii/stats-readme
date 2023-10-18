@@ -703,7 +703,7 @@ function format(objects, options = {}) {
     let result = `
 | Name | Description | Version | Downloads |
 | ---- | ----------- | ------- | --------- |
-`.trim();
+`;
     for (const object of objects) {
         const packageName = object.package.name;
         const cells = [
@@ -712,7 +712,7 @@ function format(objects, options = {}) {
             `[![NPM version](https://img.shields.io/npm/v/${packageName}?color=${mergedVersionBadgeColor})](https://www.npmjs.com/package/${packageName})`,
             `[![Download monthly](https://img.shields.io/npm/dm/${packageName}.svg?color=${mergedDownloadsBadgeColor}))](https://www.npmjs.com/package/${packageName})`
         ];
-        result += `| ${cells.join(' | ')} |`;
+        result += `| ${cells.join(' | ')} |\n`;
     }
     return result;
 }
