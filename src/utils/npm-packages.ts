@@ -1,13 +1,13 @@
-const startComment = '<!--START_SECTION:stats:langs-->'
-const endComment = '<!--END_SECTION:stats:langs-->'
+const startComment = '<!--START_SECTION:npm-packages-->'
+const endComment = '<!--END_SECTION:npm-packages-->'
 
 const statsBlockReg = new RegExp(`${startComment}[\\s\\S]+?${endComment}`)
 
-export function isRenderTopLangs(readme: string): boolean {
+export function isRenderNpmPackages(readme: string): boolean {
   return statsBlockReg.test(readme)
 }
 
-export function updateTopLangsText(
+export function updateTopNpmPackagesText(
   readme: string,
   formattedText: string
 ): string {

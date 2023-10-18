@@ -7,10 +7,13 @@ export function isRenderUserStat(readme: string): boolean {
   return statsBlockReg.test(readme)
 }
 
-export function updateUserStatsText(readme: string, userStats: string): string {
+export function updateUserStatsText(
+  readme: string,
+  formattedText: string
+): string {
   return readme.replace(
     statsBlockReg,
-    `${startComment}\n\n\`\`\`text\n${userStats}\n\`\`\`\n\n${endComment}`
+    `${startComment}\n\n\`\`\`text\n${formattedText}\n\`\`\`\n\n${endComment}`
   )
 }
 

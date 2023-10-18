@@ -36,6 +36,11 @@ CSS          1.15%    -------------------------
 
 <!--END_SECTION:stats:langs-->
 
+📦 Awesome NPM Packages
+
+<!--START_SECTION:npm-packages-->
+<!--END_SECTION:npm-packages-->
+
 ## Usage
 
 - Save the README file after copy-pasting the following special comments. Your GitHub stats will show up in between.
@@ -46,6 +51,9 @@ CSS          1.15%    -------------------------
 
   <!--START_SECTION:stats:langs-->
   <!--END_SECTION:stats:langs-->
+
+  <!--START_SECTION:npm-packages-->
+  <!--END_SECTION:npm-packages-->
   ```
 
 - Create a new workflow file (`stats-readme.yml`) inside `.github/workflows/` folder of your repository. You can create it from a template using *the actions* tab of your repository too.
@@ -65,6 +73,12 @@ CSS          1.15%    -------------------------
       runs-on: ubuntu-latest
       steps:
         - uses: yunsii/stats-readme@main
+          with:
+            npm-packages-author: theprimone
+            # npm-packages-exclude: demo
+            # npm-packages-max-show-packages: 10
+            # npm-packages-version-badge-color: a1b858
+            # npm-packages-download-badge-color: a1b858
   ```
 
 

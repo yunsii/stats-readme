@@ -7,6 +7,11 @@ import { getUserStatsText } from './views/user-stats'
 import { getTopLanguagesText } from './views/top-languages'
 import { isRenderUserStat, updateUserStatsText } from './utils/user-stats'
 import { isRenderTopLangs, updateTopLangsText } from './utils/top-languages'
+import {
+  isRenderNpmPackages,
+  updateTopNpmPackagesText
+} from './utils/npm-packages'
+import { getTopNpmPackagesText } from './views/npm-packages'
 
 interface ITask {
   name: string
@@ -34,8 +39,8 @@ async function run(): Promise<void> {
       tasks.push({
         name: 'user stats',
         run: async () => getUserStatsText(repoOwner),
-        callback: (readmeContent, userStats) =>
-          updateUserStatsText(readmeContent, userStats)
+        callback: (readmeContent, formattedText) =>
+          updateUserStatsText(readmeContent, formattedText)
       })
     }
 
@@ -43,8 +48,33 @@ async function run(): Promise<void> {
       tasks.push({
         name: 'top langs',
         run: async () => getTopLanguagesText(repoOwner),
-        callback: (readmeContent, topLangs) =>
-          updateTopLangsText(readmeContent, topLangs)
+        callback: (readmeContent, formattedText) =>
+          updateTopLangsText(readmeContent, formattedText)
+      })
+    }
+
+    if (isRenderNpmPackages(readme)) {
+      tasks.push({
+        name: 'npm packages',
+        run: async () =>
+          getTopNpmPackagesText(
+            core.getInput('npm-packages-author', {
+              required: true
+            }),
+            {
+              exclude: core.getInput('npm-packages-exclude'),
+              maxShowPackages:
+                Number(core.getInput('npm-packages-max-show-packages')) || 10,
+              versionBadgeColor: core.getInput(
+                'npm-packages-version-badge-color'
+              ),
+              downloadsBadgeColor: core.getInput(
+                'npm-packages-download-badge-color'
+              )
+            }
+          ),
+        callback: (readmeContent, formattedText) =>
+          updateTopNpmPackagesText(readmeContent, formattedText)
       })
     }
 
