@@ -56,23 +56,23 @@ async function run(): Promise<void> {
     if (isRenderNpmPackages(readme)) {
       tasks.push({
         name: 'npm packages',
-        run: async () =>
-          getTopNpmPackagesText(
-            core.getInput('npm-packages-author', {
-              required: true
-            }),
-            {
-              exclude: core.getInput('npm-packages-exclude'),
-              maxShowPackages:
-                Number(core.getInput('npm-packages-max-show-packages')) || 10,
-              versionBadgeColor: core.getInput(
-                'npm-packages-version-badge-color'
-              ),
-              downloadsBadgeColor: core.getInput(
-                'npm-packages-download-badge-color'
-              )
-            }
-          ),
+        run: async () => {
+          const npmPackagesAuthor = core.getInput('npm-packages-author', {
+            required: true
+          })
+          core.info(`INFO: npmPackagesAuthor ${npmPackagesAuthor}`)
+          return await getTopNpmPackagesText(npmPackagesAuthor, {
+            exclude: core.getInput('npm-packages-exclude'),
+            maxShowPackages:
+              Number(core.getInput('npm-packages-max-show-packages')) || 10,
+            versionBadgeColor: core.getInput(
+              'npm-packages-version-badge-color'
+            ),
+            downloadsBadgeColor: core.getInput(
+              'npm-packages-download-badge-color'
+            )
+          })
+        },
         callback: (readmeContent, formattedText) =>
           updateTopNpmPackagesText(readmeContent, formattedText)
       })

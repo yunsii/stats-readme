@@ -15,6 +15,21 @@ inputs:
     description: 'The owner and repository name. For example, `Codertocat/Hello-World``.'
     default: ${{ github.repository }}
     required: true
+  npm-packages-author:
+    description: 'required if use npm-packages section'
+    required: false
+  npm-packages-exclude:
+    description: 'npm-packages-exclude'
+    required: false
+  npm-packages-max-show-packages:
+    description: 'npm-packages-max-show-packages'
+    required: false
+  npm-packages-version-badge-color:
+    description: 'npm-packages-version-badge-color'
+    required: false
+  npm-packages-download-badge-color:
+    description: 'npm-packages-download-badge-color'
+    required: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
