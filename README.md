@@ -13,11 +13,11 @@
 <!--START_SECTION:stats-->
 
 ```text
-Total Stars Earned     582                
-Total Commits (2022)   447                 ╔═╗    
-Total PRs              43                  ╠═╣ ═╬═
-Total Issues           96                  ╩ ╩    
-Contributed to         24                 
+Total Stars Earned     734                
+Total Commits (2023)   669                 ╔═╗    
+Total PRs              60                  ╠═╣ ═╬═
+Total Issues           139                 ╩ ╩    
+Contributed to         36                 
 ```
 
 <!--END_SECTION:stats-->
@@ -27,11 +27,11 @@ Contributed to         24
 <!--START_SECTION:stats:langs-->
 
 ```text
-TypeScript   59.27%   >>>>>>>>>>>>>>>----------
-JavaScript   21.03%   >>>>>--------------------
-Less         15.29%   >>>>---------------------
-Python       1.36%    -------------------------
-CSS          1.15%    -------------------------
+TypeScript   60.40%   >>>>>>>>>>>>>>>----------
+JavaScript   18.66%   >>>>>--------------------
+Less         13.59%   >>>----------------------
+HTML         1.61%    -------------------------
+MDX          1.52%    -------------------------
 ```
 
 <!--END_SECTION:stats:langs-->
