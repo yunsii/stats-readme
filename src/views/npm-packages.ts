@@ -31,7 +31,7 @@ function format(
       packageName,
       object.package.description || '-',
       `[![NPM version](https://img.shields.io/npm/v/${packageName}?color=${mergedVersionBadgeColor})](https://www.npmjs.com/package/${packageName})`,
-      `[![Download monthly](https://img.shields.io/npm/dm/${packageName}.svg?color=${mergedDownloadsBadgeColor}))](https://www.npmjs.com/package/${packageName}`
+      `[![Download monthly](https://img.shields.io/npm/dm/${packageName}.svg?color=${mergedDownloadsBadgeColor})](https://www.npmjs.com/package/${packageName})`
     ]
 
     result += `| ${cells.join(' | ')} |\n`
