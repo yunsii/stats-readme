@@ -565,7 +565,7 @@ function isRenderNpmPackages(readme) {
 }
 exports.isRenderNpmPackages = isRenderNpmPackages;
 function updateTopNpmPackagesText(readme, formattedText) {
-    return readme.replace(statsBlockReg, `${startComment}\n\n\`\`\`text\n${formattedText}\n\`\`\`\n\n${endComment}`);
+    return readme.replace(statsBlockReg, `${startComment}\n\n${formattedText}\n\n${endComment}`);
 }
 exports.updateTopNpmPackagesText = updateTopNpmPackagesText;
 
@@ -708,7 +708,7 @@ function format(objects, options = {}) {
             packageName,
             object.package.description || '-',
             `[![NPM version](https://img.shields.io/npm/v/${packageName}?color=${mergedVersionBadgeColor})](https://www.npmjs.com/package/${packageName})`,
-            `[![Download monthly](https://img.shields.io/npm/dm/${packageName}.svg?color=${mergedDownloadsBadgeColor}))](https://www.npmjs.com/package/${packageName}`
+            `[![Download monthly](https://img.shields.io/npm/dm/${packageName}.svg?color=${mergedDownloadsBadgeColor})](https://www.npmjs.com/package/${packageName})`
         ];
         result += `| ${cells.join(' | ')} |\n`;
     }
