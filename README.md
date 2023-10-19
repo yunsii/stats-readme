@@ -14,7 +14,7 @@
 
 ```text
 Total Stars Earned     734                
-Total Commits (2023)   681                 ╔═╗    
+Total Commits (2023)   685                 ╔═╗    
 Total PRs              60                  ╠═╣ ═╬═
 Total Issues           139                 ╩ ╩    
 Contributed to         36                 
@@ -40,22 +40,20 @@ MDX          1.52%    -------------------------
 
 <!--START_SECTION:npm-packages-->
 
-```text
 
 | Name | Description | Version | Downloads |
 | ---- | ----------- | ------- | --------- |
-| tailwindcss-plugin-iconify | Use any SVG icon powered by Iconify for Tailwind CSS, easy to use local icons and figma icons in particular. | [![NPM version](https://img.shields.io/npm/v/tailwindcss-plugin-iconify?color=a1b858)](https://www.npmjs.com/package/tailwindcss-plugin-iconify) | [![Download monthly](https://img.shields.io/npm/dm/tailwindcss-plugin-iconify.svg?color=a1b858))](https://www.npmjs.com/package/tailwindcss-plugin-iconify |
-| @jannajs/lint | - | [![NPM version](https://img.shields.io/npm/v/@jannajs/lint?color=a1b858)](https://www.npmjs.com/package/@jannajs/lint) | [![Download monthly](https://img.shields.io/npm/dm/@jannajs/lint.svg?color=a1b858))](https://www.npmjs.com/package/@jannajs/lint |
-| selection-extra | - | [![NPM version](https://img.shields.io/npm/v/selection-extra?color=a1b858)](https://www.npmjs.com/package/selection-extra) | [![Download monthly](https://img.shields.io/npm/dm/selection-extra.svg?color=a1b858))](https://www.npmjs.com/package/selection-extra |
-| postcss-antd-fixes | - | [![NPM version](https://img.shields.io/npm/v/postcss-antd-fixes?color=a1b858)](https://www.npmjs.com/package/postcss-antd-fixes) | [![Download monthly](https://img.shields.io/npm/dm/postcss-antd-fixes.svg?color=a1b858))](https://www.npmjs.com/package/postcss-antd-fixes |
-| fasttext.wasm.js | - | [![NPM version](https://img.shields.io/npm/v/fasttext.wasm.js?color=a1b858)](https://www.npmjs.com/package/fasttext.wasm.js) | [![Download monthly](https://img.shields.io/npm/dm/fasttext.wasm.js.svg?color=a1b858))](https://www.npmjs.com/package/fasttext.wasm.js |
-| tagged-classnames-free | - | [![NPM version](https://img.shields.io/npm/v/tagged-classnames-free?color=a1b858)](https://www.npmjs.com/package/tagged-classnames-free) | [![Download monthly](https://img.shields.io/npm/dm/tagged-classnames-free.svg?color=a1b858))](https://www.npmjs.com/package/tagged-classnames-free |
-| idlization | - | [![NPM version](https://img.shields.io/npm/v/idlization?color=a1b858)](https://www.npmjs.com/package/idlization) | [![Download monthly](https://img.shields.io/npm/dm/idlization.svg?color=a1b858))](https://www.npmjs.com/package/idlization |
-| use-selection-extra | - | [![NPM version](https://img.shields.io/npm/v/use-selection-extra?color=a1b858)](https://www.npmjs.com/package/use-selection-extra) | [![Download monthly](https://img.shields.io/npm/dm/use-selection-extra.svg?color=a1b858))](https://www.npmjs.com/package/use-selection-extra |
-| onionkit | - | [![NPM version](https://img.shields.io/npm/v/onionkit?color=a1b858)](https://www.npmjs.com/package/onionkit) | [![Download monthly](https://img.shields.io/npm/dm/onionkit.svg?color=a1b858))](https://www.npmjs.com/package/onionkit |
-| @vitjs/vit | 🛠 React application framework inspired by UmiJS. | [![NPM version](https://img.shields.io/npm/v/@vitjs/vit?color=a1b858)](https://www.npmjs.com/package/@vitjs/vit) | [![Download monthly](https://img.shields.io/npm/dm/@vitjs/vit.svg?color=a1b858))](https://www.npmjs.com/package/@vitjs/vit |
+| tailwindcss-plugin-iconify | Use any SVG icon powered by Iconify for Tailwind CSS, easy to use local icons and figma icons in particular. | [![NPM version](https://img.shields.io/npm/v/tailwindcss-plugin-iconify?color=a1b858)](https://www.npmjs.com/package/tailwindcss-plugin-iconify) | [![Download monthly](https://img.shields.io/npm/dm/tailwindcss-plugin-iconify.svg?color=a1b858)](https://www.npmjs.com/package/tailwindcss-plugin-iconify) |
+| @jannajs/lint | - | [![NPM version](https://img.shields.io/npm/v/@jannajs/lint?color=a1b858)](https://www.npmjs.com/package/@jannajs/lint) | [![Download monthly](https://img.shields.io/npm/dm/@jannajs/lint.svg?color=a1b858)](https://www.npmjs.com/package/@jannajs/lint) |
+| selection-extra | - | [![NPM version](https://img.shields.io/npm/v/selection-extra?color=a1b858)](https://www.npmjs.com/package/selection-extra) | [![Download monthly](https://img.shields.io/npm/dm/selection-extra.svg?color=a1b858)](https://www.npmjs.com/package/selection-extra) |
+| postcss-antd-fixes | - | [![NPM version](https://img.shields.io/npm/v/postcss-antd-fixes?color=a1b858)](https://www.npmjs.com/package/postcss-antd-fixes) | [![Download monthly](https://img.shields.io/npm/dm/postcss-antd-fixes.svg?color=a1b858)](https://www.npmjs.com/package/postcss-antd-fixes) |
+| fasttext.wasm.js | - | [![NPM version](https://img.shields.io/npm/v/fasttext.wasm.js?color=a1b858)](https://www.npmjs.com/package/fasttext.wasm.js) | [![Download monthly](https://img.shields.io/npm/dm/fasttext.wasm.js.svg?color=a1b858)](https://www.npmjs.com/package/fasttext.wasm.js) |
+| tagged-classnames-free | - | [![NPM version](https://img.shields.io/npm/v/tagged-classnames-free?color=a1b858)](https://www.npmjs.com/package/tagged-classnames-free) | [![Download monthly](https://img.shields.io/npm/dm/tagged-classnames-free.svg?color=a1b858)](https://www.npmjs.com/package/tagged-classnames-free) |
+| idlization | - | [![NPM version](https://img.shields.io/npm/v/idlization?color=a1b858)](https://www.npmjs.com/package/idlization) | [![Download monthly](https://img.shields.io/npm/dm/idlization.svg?color=a1b858)](https://www.npmjs.com/package/idlization) |
+| use-selection-extra | - | [![NPM version](https://img.shields.io/npm/v/use-selection-extra?color=a1b858)](https://www.npmjs.com/package/use-selection-extra) | [![Download monthly](https://img.shields.io/npm/dm/use-selection-extra.svg?color=a1b858)](https://www.npmjs.com/package/use-selection-extra) |
+| onionkit | - | [![NPM version](https://img.shields.io/npm/v/onionkit?color=a1b858)](https://www.npmjs.com/package/onionkit) | [![Download monthly](https://img.shields.io/npm/dm/onionkit.svg?color=a1b858)](https://www.npmjs.com/package/onionkit) |
+| @vitjs/vit | 🛠 React application framework inspired by UmiJS. | [![NPM version](https://img.shields.io/npm/v/@vitjs/vit?color=a1b858)](https://www.npmjs.com/package/@vitjs/vit) | [![Download monthly](https://img.shields.io/npm/dm/@vitjs/vit.svg?color=a1b858)](https://www.npmjs.com/package/@vitjs/vit) |
 
-```
 
 <!--END_SECTION:npm-packages-->
 
