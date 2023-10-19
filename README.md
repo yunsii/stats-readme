@@ -14,7 +14,7 @@
 
 ```text
 Total Stars Earned     734                
-Total Commits (2023)   680                 ╔═╗    
+Total Commits (2023)   681                 ╔═╗    
 Total PRs              60                  ╠═╣ ═╬═
 Total Issues           139                 ╩ ╩    
 Contributed to         36                 
@@ -40,6 +40,8 @@ MDX          1.52%    -------------------------
 
 <!--START_SECTION:npm-packages-->
 
+```text
+
 | Name | Description | Version | Downloads |
 | ---- | ----------- | ------- | --------- |
 | tailwindcss-plugin-iconify | Use any SVG icon powered by Iconify for Tailwind CSS, easy to use local icons and figma icons in particular. | [![NPM version](https://img.shields.io/npm/v/tailwindcss-plugin-iconify?color=a1b858)](https://www.npmjs.com/package/tailwindcss-plugin-iconify) | [![Download monthly](https://img.shields.io/npm/dm/tailwindcss-plugin-iconify.svg?color=a1b858))](https://www.npmjs.com/package/tailwindcss-plugin-iconify |
@@ -52,6 +54,8 @@ MDX          1.52%    -------------------------
 | use-selection-extra | - | [![NPM version](https://img.shields.io/npm/v/use-selection-extra?color=a1b858)](https://www.npmjs.com/package/use-selection-extra) | [![Download monthly](https://img.shields.io/npm/dm/use-selection-extra.svg?color=a1b858))](https://www.npmjs.com/package/use-selection-extra |
 | onionkit | - | [![NPM version](https://img.shields.io/npm/v/onionkit?color=a1b858)](https://www.npmjs.com/package/onionkit) | [![Download monthly](https://img.shields.io/npm/dm/onionkit.svg?color=a1b858))](https://www.npmjs.com/package/onionkit |
 | @vitjs/vit | 🛠 React application framework inspired by UmiJS. | [![NPM version](https://img.shields.io/npm/v/@vitjs/vit?color=a1b858)](https://www.npmjs.com/package/@vitjs/vit) | [![Download monthly](https://img.shields.io/npm/dm/@vitjs/vit.svg?color=a1b858))](https://www.npmjs.com/package/@vitjs/vit |
+
+```
 
 <!--END_SECTION:npm-packages-->
 
