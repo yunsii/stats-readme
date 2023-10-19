@@ -189,82 +189,76 @@ const npm_packages_1 = __nccwpck_require__(6056);
 const npm_packages_2 = __nccwpck_require__(4051);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const repoOwner = (0, inputs_1.getRepoOwner)();
-            const repoName = (0, inputs_1.getRepoName)();
-            core.info(`INFO: Repo owner: ${repoOwner}`);
-            core.info(`INFO: Repo name: ${repoName}`);
-            const readme = yield (0, readme_1.getReadme)({
-                owner: repoOwner,
-                repo: repoName
+        const repoOwner = (0, inputs_1.getRepoOwner)();
+        const repoName = (0, inputs_1.getRepoName)();
+        core.info(`INFO: Repo owner: ${repoOwner}`);
+        core.info(`INFO: Repo name: ${repoName}`);
+        const readme = yield (0, readme_1.getReadme)({
+            owner: repoOwner,
+            repo: repoName
+        });
+        core.info(`INFO: Get readme content success`);
+        const tasks = [];
+        if ((0, user_stats_2.isRenderUserStat)(readme)) {
+            tasks.push({
+                name: 'user stats',
+                run: () => __awaiter(this, void 0, void 0, function* () { return (0, user_stats_1.getUserStatsText)(repoOwner); }),
+                callback: (readmeContent, formattedText) => (0, user_stats_2.updateUserStatsText)(readmeContent, formattedText)
             });
-            core.info(`INFO: Get readme content success`);
-            const tasks = [];
-            if ((0, user_stats_2.isRenderUserStat)(readme)) {
-                tasks.push({
-                    name: 'user stats',
-                    run: () => __awaiter(this, void 0, void 0, function* () { return (0, user_stats_1.getUserStatsText)(repoOwner); }),
-                    callback: (readmeContent, formattedText) => (0, user_stats_2.updateUserStatsText)(readmeContent, formattedText)
-                });
-            }
-            if ((0, top_languages_2.isRenderTopLangs)(readme)) {
-                tasks.push({
-                    name: 'top langs',
-                    run: () => __awaiter(this, void 0, void 0, function* () { return (0, top_languages_1.getTopLanguagesText)(repoOwner); }),
-                    callback: (readmeContent, formattedText) => (0, top_languages_2.updateTopLangsText)(readmeContent, formattedText)
-                });
-            }
-            core.info(`isRenderNpmPackages(readme) ${(0, npm_packages_1.isRenderNpmPackages)(readme).toString()}`);
-            if ((0, npm_packages_1.isRenderNpmPackages)(readme)) {
-                tasks.push({
-                    name: 'npm packages',
-                    run: () => __awaiter(this, void 0, void 0, function* () {
-                        const npmPackagesAuthor = core.getInput('npm-packages-author', {
-                            required: true
-                        });
-                        core.info(`INFO: npmPackagesAuthor ${npmPackagesAuthor}`);
-                        return yield (0, npm_packages_2.getTopNpmPackagesText)(npmPackagesAuthor, {
-                            exclude: core.getInput('npm-packages-exclude'),
-                            maxShowPackages: Number(core.getInput('npm-packages-max-show-packages')) || 10,
-                            versionBadgeColor: core.getInput('npm-packages-version-badge-color'),
-                            downloadsBadgeColor: core.getInput('npm-packages-download-badge-color')
-                        });
-                    }),
-                    callback: (readmeContent, formattedText) => {
-                        core.info(`formattedText ${formattedText}`);
-                        return (0, npm_packages_1.updateTopNpmPackagesText)(readmeContent, formattedText);
-                    }
-                });
-            }
-            if (tasks.length === 0) {
-                core.info('INFO: Readme without special comments,');
-                core.info('INFO: So, stats-readme was not updated');
-                return;
-            }
-            const viewTexts = yield Promise.all(tasks.map((item) => __awaiter(this, void 0, void 0, function* () { return item.run(); })));
-            const newReadme = viewTexts.reduce((prev, viewText, currentIndex) => {
-                return tasks[currentIndex].callback(prev, viewText);
-            }, readme);
-            if (newReadme === readme) {
-                core.info('INFO: Stats views without changes,');
-                core.info('INFO: So, stats-readme was not updated');
-                return;
-            }
-            yield (0, readme_2.commitUpdateReadme)({
-                owner: repoOwner,
-                repo: repoName,
-                message: `Updated stats-readme graph with ${tasks
-                    .map(item => item.name)
-                    .join(', ')}`,
-                content: newReadme
+        }
+        if ((0, top_languages_2.isRenderTopLangs)(readme)) {
+            tasks.push({
+                name: 'top langs',
+                run: () => __awaiter(this, void 0, void 0, function* () { return (0, top_languages_1.getTopLanguagesText)(repoOwner); }),
+                callback: (readmeContent, formattedText) => (0, top_languages_2.updateTopLangsText)(readmeContent, formattedText)
             });
-            core.info(`INFO: Stats updated successfully`);
-            core.info(`\n\nThanks for using stats-readme!`);
         }
-        catch (error) {
-            if (error instanceof Error)
-                core.setFailed(error.message);
+        core.info(`isRenderNpmPackages(readme) ${(0, npm_packages_1.isRenderNpmPackages)(readme).toString()}`);
+        if ((0, npm_packages_1.isRenderNpmPackages)(readme)) {
+            tasks.push({
+                name: 'npm packages',
+                run: () => __awaiter(this, void 0, void 0, function* () {
+                    const npmPackagesAuthor = core.getInput('npm-packages-author', {
+                        required: true
+                    });
+                    core.info(`INFO: npmPackagesAuthor ${npmPackagesAuthor}`);
+                    return yield (0, npm_packages_2.getTopNpmPackagesText)(npmPackagesAuthor, {
+                        exclude: core.getInput('npm-packages-exclude'),
+                        maxShowPackages: Number(core.getInput('npm-packages-max-show-packages')) || 10,
+                        versionBadgeColor: core.getInput('npm-packages-version-badge-color'),
+                        downloadsBadgeColor: core.getInput('npm-packages-download-badge-color')
+                    });
+                }),
+                callback: (readmeContent, formattedText) => {
+                    core.info(`formattedText ${formattedText}`);
+                    return (0, npm_packages_1.updateTopNpmPackagesText)(readmeContent, formattedText);
+                }
+            });
         }
+        if (tasks.length === 0) {
+            core.info('INFO: Readme without special comments,');
+            core.info('INFO: So, stats-readme was not updated');
+            return;
+        }
+        const viewTexts = yield Promise.all(tasks.map((item) => __awaiter(this, void 0, void 0, function* () { return item.run(); })));
+        const newReadme = viewTexts.reduce((prev, viewText, currentIndex) => {
+            return tasks[currentIndex].callback(prev, viewText);
+        }, readme);
+        if (newReadme === readme) {
+            core.info('INFO: Stats views without changes,');
+            core.info('INFO: So, stats-readme was not updated');
+            return;
+        }
+        yield (0, readme_2.commitUpdateReadme)({
+            owner: repoOwner,
+            repo: repoName,
+            message: `Updated stats-readme graph with ${tasks
+                .map(item => item.name)
+                .join(', ')}`,
+            content: newReadme
+        });
+        core.info(`INFO: Stats updated successfully`);
+        core.info(`\n\nThanks for using stats-readme!`);
     });
 }
 run();
@@ -710,7 +704,7 @@ function format(objects, options = {}) {
             packageName,
             object.package.description || '-',
             `[![NPM version](https://img.shields.io/npm/v/${packageName}?color=${mergedVersionBadgeColor})](https://www.npmjs.com/package/${packageName})`,
-            `[![Download monthly](https://img.shields.io/npm/dm/${packageName}.svg?color=${mergedDownloadsBadgeColor}))](https://www.npmjs.com/package/${packageName})`
+            `[![Download monthly](https://img.shields.io/npm/dm/${packageName}.svg?color=${mergedDownloadsBadgeColor}))](https://www.npmjs.com/package/${packageName}`
         ];
         result += `| ${cells.join(' | ')} |\n`;
     }
