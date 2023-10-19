@@ -13,6 +13,6 @@ export function updateTopNpmPackagesText(
 ): string {
   return readme.replace(
     statsBlockReg,
-    `${startComment}\n\n\`\`\`text\n${formattedText}\n\`\`\`\n\n${endComment}`
+    `${startComment}\n\n${formattedText}\n\n${endComment}`
   )
 }
