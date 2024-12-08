@@ -787,6 +787,29 @@ exports.getTopLanguagesText = getTopLanguagesText;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -803,6 +826,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getUserStatsText = void 0;
 const lodash_es_1 = __nccwpck_require__(6668);
 const cfonts_1 = __importDefault(__nccwpck_require__(9543));
+const core = __importStar(__nccwpck_require__(8195));
 const user_stats_1 = __nccwpck_require__(4757);
 const user_stats_2 = __nccwpck_require__(2419);
 function format(stats, options) {
@@ -849,6 +873,7 @@ function format(stats, options) {
         reviews: stats.totalReviews,
         stars: stats.totalStars
     });
+    core.info(`Calculated rank: ${JSON.stringify(rank, null, 2)}`);
     const result = cfonts_1.default.render(rank.level, {
         font: 'chrome',
         align: 'left',
@@ -874,6 +899,7 @@ function format(stats, options) {
 function getUserStatsText(login) {
     return __awaiter(this, void 0, void 0, function* () {
         const stats = yield (0, user_stats_1.getUserStats)(login);
+        core.info(`User ${login} stats: ${JSON.stringify(stats, null, 2)}`);
         return format(stats);
     });
 }
