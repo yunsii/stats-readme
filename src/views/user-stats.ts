@@ -18,8 +18,12 @@ function format(
       value: stats.totalStars
     },
     {
-      label: `Total Commits (${new Date().getFullYear()})`,
+      label: `Total Commits`,
       value: stats.totalCommits
+    },
+    {
+      label: `Total Commits (${new Date().getFullYear()})`,
+      value: stats.totalCommitsInLastYear
     },
     {
       label: 'Total PRs',
@@ -30,8 +34,8 @@ function format(
       value: stats.totalIssues
     },
     {
-      label: 'Contributed to',
-      value: stats.contributedTo
+      label: `Contributed to (${new Date().getFullYear()})`,
+      value: stats.contributedToInLastYear
     }
   ]
 
@@ -49,12 +53,13 @@ function format(
 
   const rank = calculateRank({
     totalRepos: stats.totalRepos,
-    totalCommits: stats.totalCommits,
-    contributions: stats.contributedTo,
+    commits: stats.totalCommits,
+    isAllCommits: true,
     followers: stats.followers,
     prs: stats.totalPRs,
     issues: stats.totalIssues,
-    stargazers: stats.totalStars
+    reviews: stats.totalReviews,
+    stars: stats.totalStars
   })
 
   const result = cfonts.render(rank.level, {

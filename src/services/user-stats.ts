@@ -1,3 +1,5 @@
+import pRetry from 'p-retry'
+
 import octokit from '../requests/octokit'
 
 export interface IUserStatsResponse {
@@ -6,7 +8,7 @@ export interface IUserStatsResponse {
     login: string
     contributionsCollection: {
       totalCommitContributions: number
-      restrictedContributionsCount: number
+      totalPullRequestReviewContributions: number
     }
     repositoriesContributedTo: {
       totalCount: number
@@ -82,4 +84,19 @@ export async function fetchUserStats(
     `,
     ...variables
   })
+}
+
+export async function totalCommitsFetcher(username: string): Promise<number> {
+  const searchCommitsResult = await pRetry(
+    async () => {
+      return octokit.rest.search.commits({
+        q: `author:${username}`
+      })
+    },
+    { retries: 5 }
+  )
+
+  const totalCount = searchCommitsResult.data.total_count
+
+  return totalCount
 }
