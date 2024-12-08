@@ -99,34 +99,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getUserStats = void 0;
 const user_stats_1 = __nccwpck_require__(6290);
-function getUserStats(login, options) {
+function getUserStats(login) {
     return __awaiter(this, void 0, void 0, function* () {
-        const includePrivate = (options === null || options === void 0 ? void 0 : options.includePrivate) || false;
         // Ref: https://github.com/anuraghazra/github-readme-stats/blob/a481021dab/src/fetchers/stats-fetcher.js
         const stats = {
             name: '',
             totalRepos: 0,
+            totalReviews: 0,
             totalPRs: 0,
             totalCommits: 0,
+            totalCommitsInLastYear: 0,
             totalIssues: 0,
             totalStars: 0,
             followers: 0,
-            contributedTo: 0
+            contributedToInLastYear: 0
         };
         const response = yield (0, user_stats_1.fetchUserStats)({ login });
         const { user } = response;
         stats.name = user.name || user.login;
         stats.totalRepos = user.repositories.totalCount;
+        stats.totalReviews =
+            user.contributionsCollection.totalPullRequestReviewContributions;
         stats.totalIssues = user.openIssues.totalCount + user.closedIssues.totalCount;
         // normal commits
         stats.totalCommits = user.contributionsCollection.totalCommitContributions;
-        // if includePrivate then add private commits to totalCommits so far.
-        if (includePrivate) {
-            stats.totalCommits +=
-                user.contributionsCollection.restrictedContributionsCount;
-        }
+        stats.totalCommits = yield (0, user_stats_1.totalCommitsFetcher)(login);
+        stats.totalCommitsInLastYear =
+            user.contributionsCollection.totalCommitContributions;
         stats.totalPRs = user.pullRequests.totalCount;
-        stats.contributedTo = user.repositoriesContributedTo.totalCount;
+        stats.contributedToInLastYear = user.repositoriesContributedTo.totalCount;
         stats.totalStars = user.repositories.nodes.reduce((prev, curr) => {
             return prev + curr.stargazers.totalCount;
         }, 0);
@@ -453,7 +454,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fetchUserStats = void 0;
+exports.totalCommitsFetcher = exports.fetchUserStats = void 0;
+const p_retry_1 = __importDefault(__nccwpck_require__(4467));
 const octokit_1 = __importDefault(__nccwpck_require__(3058));
 // No need to consider error request, octokit processed very well
 function fetchUserStats(variables) {
@@ -498,6 +500,18 @@ function fetchUserStats(variables) {
     });
 }
 exports.fetchUserStats = fetchUserStats;
+function totalCommitsFetcher(username) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const searchCommitsResult = yield (0, p_retry_1.default)(() => __awaiter(this, void 0, void 0, function* () {
+            return octokit_1.default.rest.search.commits({
+                q: `author:${username}`
+            });
+        }), { retries: 5 });
+        const totalCount = searchCommitsResult.data.total_count;
+        return totalCount;
+    });
+}
+exports.totalCommitsFetcher = totalCommitsFetcher;
 
 
 /***/ }),
@@ -612,64 +626,44 @@ function updateUserStatsText(readme, formattedText) {
     return readme.replace(statsBlockReg, `${startComment}\n\n\`\`\`text\n${formattedText}\n\`\`\`\n\n${endComment}`);
 }
 exports.updateUserStatsText = updateUserStatsText;
-// Ref: https://github.com/anuraghazra/github-readme-stats/blob/master/src/calculateRank.js
-// https://stackoverflow.com/a/5263759/10629172
-function normalCDF(mean, sigma, to) {
-    const z = (to - mean) / Math.sqrt(2 * sigma * sigma);
-    const t = 1 / (1 + 0.3275911 * Math.abs(z));
-    const a1 = 0.254829592;
-    const a2 = -0.284496736;
-    const a3 = 1.421413741;
-    const a4 = -1.453152027;
-    const a5 = 1.061405429;
-    const erf = 1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
-    let sign = 1;
-    if (z < 0) {
-        sign = -1;
-    }
-    return (1 / 2) * (1 + sign * erf);
+function exponentialCdf(x) {
+    return 1 - Math.pow(2, -x);
 }
-function calculateRank({ totalRepos, totalCommits, contributions, followers, prs, issues, stargazers }) {
-    const COMMITS_OFFSET = 1.65;
-    const CONTRIBUTES_OFFSET = 1.65;
-    const ISSUES_OFFSET = 1;
-    const STARS_OFFSET = 0.75;
-    const PRS_OFFSET = 0.5;
-    const FOLLOWERS_OFFSET = 0.45;
-    const REPO_OFFSET = 1;
-    const ALL_OFFSETS = CONTRIBUTES_OFFSET +
-        ISSUES_OFFSET +
-        STARS_OFFSET +
-        PRS_OFFSET +
-        FOLLOWERS_OFFSET +
-        REPO_OFFSET;
-    const RANK_S_VALUE = 1;
-    const RANK_DOUBLE_A_VALUE = 25;
-    const RANK_A2_VALUE = 45;
-    const RANK_A3_VALUE = 60;
-    const RANK_B_VALUE = 100;
-    const TOTAL_VALUES = RANK_S_VALUE + RANK_A2_VALUE + RANK_A3_VALUE + RANK_B_VALUE;
-    // prettier-ignore
-    const score = (totalCommits * COMMITS_OFFSET +
-        contributions * CONTRIBUTES_OFFSET +
-        issues * ISSUES_OFFSET +
-        stargazers * STARS_OFFSET +
-        prs * PRS_OFFSET +
-        followers * FOLLOWERS_OFFSET +
-        totalRepos * REPO_OFFSET) / 100;
-    const normalizedScore = normalCDF(score, TOTAL_VALUES, ALL_OFFSETS) * 100;
-    const level = (() => {
-        if (normalizedScore < RANK_S_VALUE)
-            return 'S+';
-        if (normalizedScore < RANK_DOUBLE_A_VALUE)
-            return 'S';
-        if (normalizedScore < RANK_A2_VALUE)
-            return 'A++';
-        if (normalizedScore < RANK_A3_VALUE)
-            return 'A+';
-        return 'B+';
-    })();
-    return { level, score: normalizedScore };
+function logNormalCdf(x) {
+    // approximation
+    return x / (1 + x);
+}
+function calculateRank({ commits, isAllCommits, followers, prs, issues, reviews, stars }) {
+    const COMMITS_MEDIAN = isAllCommits ? 1000 : 250;
+    const COMMITS_WEIGHT = 2;
+    const PRS_MEDIAN = 50;
+    const PRS_WEIGHT = 3;
+    const ISSUES_MEDIAN = 25;
+    const ISSUES_WEIGHT = 1;
+    const REVIEWS_MEDIAN = 2;
+    const REVIEWS_WEIGHT = 1;
+    const STARS_MEDIAN = 50;
+    const STARS_WEIGHT = 4;
+    const FOLLOWERS_MEDIAN = 10;
+    const FOLLOWERS_WEIGHT = 1;
+    const TOTAL_WEIGHT = COMMITS_WEIGHT +
+        PRS_WEIGHT +
+        ISSUES_WEIGHT +
+        REVIEWS_WEIGHT +
+        STARS_WEIGHT +
+        FOLLOWERS_WEIGHT;
+    const THRESHOLDS = [1, 12.5, 25, 37.5, 50, 62.5, 75, 87.5, 100];
+    const LEVELS = ['S', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'];
+    const rank = 1 -
+        (COMMITS_WEIGHT * exponentialCdf(commits / COMMITS_MEDIAN) +
+            PRS_WEIGHT * exponentialCdf(prs / PRS_MEDIAN) +
+            ISSUES_WEIGHT * exponentialCdf(issues / ISSUES_MEDIAN) +
+            REVIEWS_WEIGHT * exponentialCdf(reviews / REVIEWS_MEDIAN) +
+            STARS_WEIGHT * logNormalCdf(stars / STARS_MEDIAN) +
+            FOLLOWERS_WEIGHT * logNormalCdf(followers / FOLLOWERS_MEDIAN)) /
+            TOTAL_WEIGHT;
+    const level = LEVELS[THRESHOLDS.findIndex(t => rank * 100 <= t)];
+    return { level, percentile: rank * 100 };
 }
 exports.calculateRank = calculateRank;
 
@@ -819,8 +813,12 @@ function format(stats, options) {
             value: stats.totalStars
         },
         {
-            label: `Total Commits (${new Date().getFullYear()})`,
+            label: `Total Commits`,
             value: stats.totalCommits
+        },
+        {
+            label: `Total Commits (${new Date().getFullYear()})`,
+            value: stats.totalCommitsInLastYear
         },
         {
             label: 'Total PRs',
@@ -831,8 +829,8 @@ function format(stats, options) {
             value: stats.totalIssues
         },
         {
-            label: 'Contributed to',
-            value: stats.contributedTo
+            label: `Contributed to (${new Date().getFullYear()})`,
+            value: stats.contributedToInLastYear
         }
     ];
     const maxLabelLength = (0, lodash_es_1.max)(info.map(item => item.label.length)) || 0;
@@ -843,12 +841,13 @@ function format(stats, options) {
     const maxInfoLineLength = (0, lodash_es_1.max)(infoLines.map(item => item.length)) || 0;
     const rank = (0, user_stats_2.calculateRank)({
         totalRepos: stats.totalRepos,
-        totalCommits: stats.totalCommits,
-        contributions: stats.contributedTo,
+        commits: stats.totalCommits,
+        isAllCommits: true,
         followers: stats.followers,
         prs: stats.totalPRs,
         issues: stats.totalIssues,
-        stargazers: stats.totalStars
+        reviews: stats.totalReviews,
+        stars: stats.totalStars
     });
     const result = cfonts_1.default.render(rank.level, {
         font: 'chrome',
@@ -29055,6 +29054,289 @@ RetryOperation.prototype.retry = function(err) {
 
   if (this._options.unref) {
       timer.unref();
+  }
+
+  return true;
+};
+
+RetryOperation.prototype.attempt = function(fn, timeoutOps) {
+  this._fn = fn;
+
+  if (timeoutOps) {
+    if (timeoutOps.timeout) {
+      this._operationTimeout = timeoutOps.timeout;
+    }
+    if (timeoutOps.cb) {
+      this._operationTimeoutCb = timeoutOps.cb;
+    }
+  }
+
+  var self = this;
+  if (this._operationTimeoutCb) {
+    this._timeout = setTimeout(function() {
+      self._operationTimeoutCb();
+    }, self._operationTimeout);
+  }
+
+  this._operationStart = new Date().getTime();
+
+  this._fn(this._attempts);
+};
+
+RetryOperation.prototype.try = function(fn) {
+  console.log('Using RetryOperation.try() is deprecated');
+  this.attempt(fn);
+};
+
+RetryOperation.prototype.start = function(fn) {
+  console.log('Using RetryOperation.start() is deprecated');
+  this.attempt(fn);
+};
+
+RetryOperation.prototype.start = RetryOperation.prototype.try;
+
+RetryOperation.prototype.errors = function() {
+  return this._errors;
+};
+
+RetryOperation.prototype.attempts = function() {
+  return this._attempts;
+};
+
+RetryOperation.prototype.mainError = function() {
+  if (this._errors.length === 0) {
+    return null;
+  }
+
+  var counts = {};
+  var mainError = null;
+  var mainErrorCount = 0;
+
+  for (var i = 0; i < this._errors.length; i++) {
+    var error = this._errors[i];
+    var message = error.message;
+    var count = (counts[message] || 0) + 1;
+
+    counts[message] = count;
+
+    if (count >= mainErrorCount) {
+      mainError = error;
+      mainErrorCount = count;
+    }
+  }
+
+  return mainError;
+};
+
+
+/***/ }),
+
+/***/ 1604:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+module.exports = __nccwpck_require__(4226);
+
+/***/ }),
+
+/***/ 4226:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+var RetryOperation = __nccwpck_require__(9369);
+
+exports.operation = function(options) {
+  var timeouts = exports.timeouts(options);
+  return new RetryOperation(timeouts, {
+      forever: options && (options.forever || options.retries === Infinity),
+      unref: options && options.unref,
+      maxRetryTime: options && options.maxRetryTime
+  });
+};
+
+exports.timeouts = function(options) {
+  if (options instanceof Array) {
+    return [].concat(options);
+  }
+
+  var opts = {
+    retries: 10,
+    factor: 2,
+    minTimeout: 1 * 1000,
+    maxTimeout: Infinity,
+    randomize: false
+  };
+  for (var key in options) {
+    opts[key] = options[key];
+  }
+
+  if (opts.minTimeout > opts.maxTimeout) {
+    throw new Error('minTimeout is greater than maxTimeout');
+  }
+
+  var timeouts = [];
+  for (var i = 0; i < opts.retries; i++) {
+    timeouts.push(this.createTimeout(i, opts));
+  }
+
+  if (options && options.forever && !timeouts.length) {
+    timeouts.push(this.createTimeout(i, opts));
+  }
+
+  // sort the array numerically ascending
+  timeouts.sort(function(a,b) {
+    return a - b;
+  });
+
+  return timeouts;
+};
+
+exports.createTimeout = function(attempt, opts) {
+  var random = (opts.randomize)
+    ? (Math.random() + 1)
+    : 1;
+
+  var timeout = Math.round(random * Math.max(opts.minTimeout, 1) * Math.pow(opts.factor, attempt));
+  timeout = Math.min(timeout, opts.maxTimeout);
+
+  return timeout;
+};
+
+exports.wrap = function(obj, options, methods) {
+  if (options instanceof Array) {
+    methods = options;
+    options = null;
+  }
+
+  if (!methods) {
+    methods = [];
+    for (var key in obj) {
+      if (typeof obj[key] === 'function') {
+        methods.push(key);
+      }
+    }
+  }
+
+  for (var i = 0; i < methods.length; i++) {
+    var method   = methods[i];
+    var original = obj[method];
+
+    obj[method] = function retryWrapper(original) {
+      var op       = exports.operation(options);
+      var args     = Array.prototype.slice.call(arguments, 1);
+      var callback = args.pop();
+
+      args.push(function(err) {
+        if (op.retry(err)) {
+          return;
+        }
+        if (err) {
+          arguments[0] = op.mainError();
+        }
+        callback.apply(this, arguments);
+      });
+
+      op.attempt(function() {
+        original.apply(obj, args);
+      });
+    }.bind(obj, original);
+    obj[method].options = options;
+  }
+};
+
+
+/***/ }),
+
+/***/ 9369:
+/***/ ((module) => {
+
+function RetryOperation(timeouts, options) {
+  // Compatibility for the old (timeouts, retryForever) signature
+  if (typeof options === 'boolean') {
+    options = { forever: options };
+  }
+
+  this._originalTimeouts = JSON.parse(JSON.stringify(timeouts));
+  this._timeouts = timeouts;
+  this._options = options || {};
+  this._maxRetryTime = options && options.maxRetryTime || Infinity;
+  this._fn = null;
+  this._errors = [];
+  this._attempts = 1;
+  this._operationTimeout = null;
+  this._operationTimeoutCb = null;
+  this._timeout = null;
+  this._operationStart = null;
+  this._timer = null;
+
+  if (this._options.forever) {
+    this._cachedTimeouts = this._timeouts.slice(0);
+  }
+}
+module.exports = RetryOperation;
+
+RetryOperation.prototype.reset = function() {
+  this._attempts = 1;
+  this._timeouts = this._originalTimeouts.slice(0);
+}
+
+RetryOperation.prototype.stop = function() {
+  if (this._timeout) {
+    clearTimeout(this._timeout);
+  }
+  if (this._timer) {
+    clearTimeout(this._timer);
+  }
+
+  this._timeouts       = [];
+  this._cachedTimeouts = null;
+};
+
+RetryOperation.prototype.retry = function(err) {
+  if (this._timeout) {
+    clearTimeout(this._timeout);
+  }
+
+  if (!err) {
+    return false;
+  }
+  var currentTime = new Date().getTime();
+  if (err && currentTime - this._operationStart >= this._maxRetryTime) {
+    this._errors.push(err);
+    this._errors.unshift(new Error('RetryOperation timeout occurred'));
+    return false;
+  }
+
+  this._errors.push(err);
+
+  var timeout = this._timeouts.shift();
+  if (timeout === undefined) {
+    if (this._cachedTimeouts) {
+      // retry forever, only keep last error
+      this._errors.splice(0, this._errors.length - 1);
+      timeout = this._cachedTimeouts.slice(-1);
+    } else {
+      return false;
+    }
+  }
+
+  var self = this;
+  this._timer = setTimeout(function() {
+    self._attempts++;
+
+    if (self._operationTimeoutCb) {
+      self._timeout = setTimeout(function() {
+        self._operationTimeoutCb(self._attempts);
+      }, self._operationTimeout);
+
+      if (self._options.unref) {
+          self._timeout.unref();
+      }
+    }
+
+    self._fn(self._attempts);
+  }, timeout);
+
+  if (this._options.unref) {
+      this._timer.unref();
   }
 
   return true;
@@ -69444,6 +69726,153 @@ if (lodash_default_symIterator) {
 
 
 
+
+
+/***/ }),
+
+/***/ 4467:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+// ESM COMPAT FLAG
+__nccwpck_require__.r(__webpack_exports__);
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "AbortError": () => (/* binding */ AbortError),
+  "default": () => (/* binding */ pRetry)
+});
+
+// EXTERNAL MODULE: ./node_modules/.pnpm/retry@0.13.1/node_modules/retry/index.js
+var retry = __nccwpck_require__(1604);
+;// CONCATENATED MODULE: ./node_modules/.pnpm/is-network-error@1.1.0/node_modules/is-network-error/index.js
+const objectToString = Object.prototype.toString;
+
+const isError = value => objectToString.call(value) === '[object Error]';
+
+const errorMessages = new Set([
+	'network error', // Chrome
+	'Failed to fetch', // Chrome
+	'NetworkError when attempting to fetch resource.', // Firefox
+	'The Internet connection appears to be offline.', // Safari 16
+	'Load failed', // Safari 17+
+	'Network request failed', // `cross-fetch`
+	'fetch failed', // Undici (Node.js)
+	'terminated', // Undici (Node.js)
+]);
+
+function isNetworkError(error) {
+	const isValid = error
+		&& isError(error)
+		&& error.name === 'TypeError'
+		&& typeof error.message === 'string';
+
+	if (!isValid) {
+		return false;
+	}
+
+	// We do an extra check for Safari 17+ as it has a very generic error message.
+	// Network errors in Safari have no stack.
+	if (error.message === 'Load failed') {
+		return error.stack === undefined;
+	}
+
+	return errorMessages.has(error.message);
+}
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/p-retry@6.2.1/node_modules/p-retry/index.js
+
+
+
+class AbortError extends Error {
+	constructor(message) {
+		super();
+
+		if (message instanceof Error) {
+			this.originalError = message;
+			({message} = message);
+		} else {
+			this.originalError = new Error(message);
+			this.originalError.stack = this.stack;
+		}
+
+		this.name = 'AbortError';
+		this.message = message;
+	}
+}
+
+const decorateErrorWithCounts = (error, attemptNumber, options) => {
+	// Minus 1 from attemptNumber because the first attempt does not count as a retry
+	const retriesLeft = options.retries - (attemptNumber - 1);
+
+	error.attemptNumber = attemptNumber;
+	error.retriesLeft = retriesLeft;
+	return error;
+};
+
+async function pRetry(input, options) {
+	return new Promise((resolve, reject) => {
+		options = {...options};
+		options.onFailedAttempt ??= () => {};
+		options.shouldRetry ??= () => true;
+		options.retries ??= 10;
+
+		const operation = retry.operation(options);
+
+		const abortHandler = () => {
+			operation.stop();
+			reject(options.signal?.reason);
+		};
+
+		if (options.signal && !options.signal.aborted) {
+			options.signal.addEventListener('abort', abortHandler, {once: true});
+		}
+
+		const cleanUp = () => {
+			options.signal?.removeEventListener('abort', abortHandler);
+			operation.stop();
+		};
+
+		operation.attempt(async attemptNumber => {
+			try {
+				const result = await input(attemptNumber);
+				cleanUp();
+				resolve(result);
+			} catch (error) {
+				try {
+					if (!(error instanceof Error)) {
+						throw new TypeError(`Non-error was thrown: "${error}". You should only throw errors.`);
+					}
+
+					if (error instanceof AbortError) {
+						throw error.originalError;
+					}
+
+					if (error instanceof TypeError && !isNetworkError(error)) {
+						throw error;
+					}
+
+					decorateErrorWithCounts(error, attemptNumber, options);
+
+					if (!(await options.shouldRetry(error))) {
+						operation.stop();
+						reject(error);
+					}
+
+					await options.onFailedAttempt(error);
+
+					if (!operation.retry(error)) {
+						throw operation.mainError();
+					}
+				} catch (finalError) {
+					decorateErrorWithCounts(finalError, attemptNumber, options);
+					cleanUp();
+					reject(finalError);
+				}
+			}
+		});
+	});
+}
 
 
 /***/ }),
