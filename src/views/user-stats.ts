@@ -80,13 +80,19 @@ function format(
     env: 'node' // define the environment cfonts is being executed in
   })
 
-  // result.array.length = 3
-  const rankFontLines = ['', ...result.array, '']
+  const rankStartIndex = Math.ceil((infoLines.length - result.array.length) / 2)
 
   return infoLines
     .map((item, index) => {
+      if (index < rankStartIndex) {
+        return item
+      }
+      if (index >= rankStartIndex + result.array.length) {
+        return item
+      }
+
       return `${padEnd(item, maxInfoLineLength + 16, ' ')}${
-        rankFontLines[index]
+        result.array[index - rankStartIndex]
       }`
     })
     .join('\n')
