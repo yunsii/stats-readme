@@ -1,6 +1,7 @@
 import { it } from '@jest/globals'
 
 import { calculateRank } from '../src/utils/user-stats'
+import { expect } from '@jest/globals'
 
 it('should calculate rank correctly', () => {
   const stats = {
@@ -16,7 +17,7 @@ it('should calculate rank correctly', () => {
     contributedToInLastYear: 26
   }
 
-  calculateRank({
+  const rank = calculateRank({
     totalRepos: stats.totalRepos,
     commits: stats.totalCommits,
     isAllCommits: true,
@@ -26,4 +27,5 @@ it('should calculate rank correctly', () => {
     reviews: stats.totalReviews,
     stars: stats.totalStars
   })
+  expect(rank.level).toBeDefined()
 })
