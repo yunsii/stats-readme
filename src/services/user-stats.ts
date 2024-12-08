@@ -54,7 +54,7 @@ export async function fetchUserStats(
           login
           contributionsCollection {
             totalCommitContributions
-            restrictedContributionsCount
+            totalPullRequestReviewContributions
           }
           repositoriesContributedTo(first: 1, contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) {
             totalCount
