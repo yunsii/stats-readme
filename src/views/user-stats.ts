@@ -1,5 +1,6 @@
 import { max, padEnd } from 'lodash-es'
 import cfonts from 'cfonts'
+import * as core from '@actions/core'
 
 import { getUserStats, IStatsData } from '../data/user-stats'
 import { calculateRank } from '../utils/user-stats'
@@ -62,6 +63,8 @@ function format(
     stars: stats.totalStars
   })
 
+  core.info(`Calculated rank: ${JSON.stringify(rank, null, 2)}`)
+
   const result = cfonts.render(rank.level, {
     font: 'chrome', // define the font face
     align: 'left', // define text alignment
@@ -91,5 +94,6 @@ function format(
 
 export async function getUserStatsText(login: string): Promise<string> {
   const stats = await getUserStats(login)
+  core.info(`User ${login} stats: ${JSON.stringify(stats, null, 2)}`)
   return format(stats)
 }
