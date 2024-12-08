@@ -888,11 +888,16 @@ function format(stats, options) {
         transitionGradient: false,
         env: 'node' // define the environment cfonts is being executed in
     });
-    // result.array.length = 3
-    const rankFontLines = ['', ...result.array, ''];
+    const rankStartIndex = Math.ceil((infoLines.length - result.array.length) / 2);
     return infoLines
         .map((item, index) => {
-        return `${(0, lodash_es_1.padEnd)(item, maxInfoLineLength + 16, ' ')}${rankFontLines[index]}`;
+        if (index < rankStartIndex) {
+            return item;
+        }
+        if (index >= rankStartIndex + result.array.length) {
+            return item;
+        }
+        return `${(0, lodash_es_1.padEnd)(item, maxInfoLineLength + 16, ' ')}${result.array[index - rankStartIndex]}`;
     })
         .join('\n');
 }
